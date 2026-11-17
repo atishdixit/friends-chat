@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>DuoCall</title>
+  <link rel="icon" href="favicon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Sign in -->
+  <section id="login" class="screen">
+    <form id="login-form" class="card" autocomplete="on">
+      <div class="brand"><span class="logo"></span>DuoCall</div>
+      <p class="muted">Private chat and calls for two people.</p>
+      <label>Your name
+        <input id="name" name="name" maxlength="30" required autocomplete="nickname" />
+      </label>
+      <label>Room password
+        <input id="password" name="password" type="password" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="primary">Enter</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Chat -->
+  <section id="chat" class="screen hidden">
+    <header class="topbar">
+      <div class="peer">
+        <span id="peer-dot" class="dot"></span>
+        <div>
+          <div id="peer-name" class="peer-name">Waiting for the other person…</div>
+          <div id="peer-status" class="muted small"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btn-audio" class="icon" title="Audio call" aria-label="Audio call" disabled>
+          <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+        </button>
+        <button id="btn-video" class="icon" title="Video call" aria-label="Video call" disabled>
+          <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/></svg>
+        </button>
+        <button id="btn-logout" class="icon" title="Leave" aria-label="Leave">
+          <svg viewBox="0 0 24 24"><path d="M10 17l1.4-1.4-2.6-2.6H20v-2H8.8l2.6-2.6L10 7l-5 5zM4 5h8V3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8v-2H4z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="messages" class="messages" aria-live="polite"></main>
+    <div id="typing" class="typing muted small"></div>
+
+    <form id="composer" class="composer">
+      <input id="text" placeholder="Type a message" autocomplete="off" maxlength="2000" />
+      <button class="primary send" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  </section>
+
+  <!-- Incoming call -->
+  <div id="incoming" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="card center">
+      <div class="avatar pulse" id="incoming-avatar"></div>
+      <h2 id="incoming-title">Incoming call</h2>
+      <div class="row">
+        <button id="btn-decline" class="danger round" aria-label="Decline">
+          <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.4 0L.29 13.08a1 1 0 0 1 0-1.41A17 17 0 0 1 12 7a17 17 0 0 1 11.71 4.67 1 1 0 0 1 0 1.41l-2.48 2.48a1 1 0 0 1-1.4 0 11.3 11.3 0 0 0-2.67-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg>
+        </button>
+        <button id="btn-accept" class="ok round" aria-label="Accept">
+          <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In call -->
+  <div id="call" class="call hidden">
+    <video id="remote" autoplay playsinline></video>
+    <div id="call-info" class="call-info">
+      <div class="avatar" id="call-avatar"></div>
+      <div id="call-name" class="call-name"></div>
+      <div id="call-state" class="muted"></div>
+    </div>
+    <video id="local" autoplay playsinline muted></video>
+    <div class="controls">
+      <button id="btn-mute" class="round glass" aria-label="Mute microphone" title="Mute">
+        <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"/></svg>
+      </button>
+      <button id="btn-cam" class="round glass" aria-label="Turn camera off" title="Camera">
+        <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/></svg>
+      </button>
+      <button id="btn-flip" class="round glass" aria-label="Switch camera" title="Switch camera">
+        <svg viewBox="0 0 24 24"><path d="M20 5h-3.2L15 3H9L7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 13a5 5 0 0 1-4.9-4H5l3-3 3 3H9.1a3 3 0 0 0 5.4 1.2l1.4 1.4A5 5 0 0 1 12 18zm4-5l-3-3h1.9a3 3 0 0 0-5.4-1.2L8.1 7.4A5 5 0 0 1 16.9 10H19z"/></svg>
+      </button>
+      <button id="btn-hangup" class="round danger" aria-label="End call" title="End call">
+        <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.4 0L.29 13.08a1 1 0 0 1 0-1.41A17 17 0 0 1 12 7a17 17 0 0 1 11.71 4.67 1 1 0 0 1 0 1.41l-2.48 2.48a1 1 0 0 1-1.4 0 11.3 11.3 0 0 0-2.67-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

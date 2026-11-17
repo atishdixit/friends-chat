@@ -1,0 +1,24 @@
+# Render Blueprint: Render dashboard -> New -> Blueprint -> pick the repo.
+# Free plan is fine: no database or disk needed.
+services:
+  - type: web
+    name: duocall
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ROOM_PASSWORD
+        sync: false   # Render asks for it when you create the Blueprint
+      # Optional TURN server for strict networks (see README):
+      # - key: TURN_URLS
+      #   sync: false
+      # - key: TURN_USERNAME
+      #   sync: false
+      # - key: TURN_CREDENTIAL
+      #   sync: false
